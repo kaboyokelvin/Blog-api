@@ -1,10 +1,10 @@
-import {Schema, Model} from "mongoose";
+import {Schema, model} from "mongoose";
 
 const userSchema = new Schema({
     username: String,
     password: String
 })
 
-const UserModel = new Model('User', userSchema);
+const UserModel = model('User', userSchema);
 
 export default UserModel;

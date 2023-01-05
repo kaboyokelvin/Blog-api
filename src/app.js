@@ -1,10 +1,16 @@
 import express from "express";
 import mongoose from "mongoose";
-import { PostModel, UserModel } from './models/index';
+import { PostModel, UserModel } from './models/index.js';
 
 const app = express();
 
-mongoose.connect("mongodb+srv://localhost/")
+mongoose.connect("mongodb://localhost:27017/Blog", { useUnifiedTopology: true, useNewUrlParser: true})
+.then(() => {
+    console.log("mongodd connected successfully");
+})
+.catch((error) => {
+    console.log("mongod did not connected successfully: ", error?.message);
+})
 
 const authenticationMiddleWare = async (req, res, next) => {
     try {
@@ -84,7 +90,7 @@ app.delete('/posts/:id', authenticationMiddleWare, async (req, res) => {
     }
 })
 
-app.update('/posts/:id', async (req, res) => {
+app.put('/posts/:id', async (req, res) => {
     try {
         const userId = req.userId;
         const postCheck = await PostModel.findOne({ user: userId, _id: id })
