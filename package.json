@@ -1,0 +1,26 @@
+{
+  "name": "blog-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kaboyokelvin/Blog-api.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kaboyokelvin/Blog-api/issues"
+  },
+  "homepage": "https://github.com/kaboyokelvin/Blog-api#readme",
+  "dependencies": {
+    "dot-env": "^0.0.1",
+    "express": "^4.18.2",
+    "mongoose": "^6.8.2"
+  }
+}
