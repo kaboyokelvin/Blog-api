@@ -4,7 +4,9 @@ import { PostModel, UserModel } from './models/index.js';
 
 const app = express();
 
-mongoose.connect("mongodb://localhost:27017/Blog", { useUnifiedTopology: true, useNewUrlParser: true})
+app.use(express.json());
+
+mongoose.connect("mongodb://localhost:27017/blog", { useUnifiedTopology: true, useNewUrlParser: true})
 .then(() => {
     console.log("mongodd connected successfully");
 })
@@ -14,36 +16,41 @@ mongoose.connect("mongodb://localhost:27017/Blog", { useUnifiedTopology: true, u
 
 const authenticationMiddleWare = async (req, res, next) => {
     try {
-        const token = req.headers.authorization;
-        const userId = req.headers.userId;
-        if (token !== 1234) {
+        const {token, userid} = req.headers
+        console.log(Object.keys(req.headers), "userId")
+        if (Number(token) !== 1234) {
             throw new Error("Unauthorized user")
         }
-        req.userId = userId;
+        req.userId = userid;
         next();
     } catch (error) { return res.status(500).json({ message: error?.message }) }
 }
 
-app.post('/users/login', authenticationMiddleWare, async (req, res) => {
+app.post('/users/login', async (req, res) => {
     try {
         const { username, password } = req.body;
         const user = await UserModel.findOne({ username, password })
+        console.log(user,  !user)
         if (!user) {
             throw new Error("Unauthorized user")
         }
-        res.status(200).json({ token: 1234, userId })
+        res.status(200).json({ token: 1234, userId: user._id })
     } catch (error) { return res.status(500).json({ message: error?.message }) }
 })
 
-app.post('/user', async (req, res) => {
+app.post('/users', async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { username, password, email } = req.body;
         await UserModel.create({
             username,
-            password
+            password,
+            email
+        })
+        res.status(201).json({
+            message: "successfully registered"
         })
     } catch (error) {
-        res.status(500).json({ message: "Something wrong happened" })
+        res.status(500).json({ message: "Something wrong happened", error: error?.message })
     }
 })
 
@@ -51,9 +58,10 @@ app.post('/posts', authenticationMiddleWare, async (req, res) => {
     try {
         const { title, content } = req.body;
         const userId = req.userId;
-        await PostModel({ title, content, user: userId })
+        await PostModel.create({ title, content, user: userId })
+        res.status(201).json({message: "Post created successfully"})
     } catch (error) {
-        res.status(500).json({ message: "Something wrong happened" })
+        res.status(500).json({ message: "Something wrong happened" , error: error?.message })
     }
 })
 
@@ -69,7 +77,7 @@ app.get('/posts/:id', authenticationMiddleWare, async (req, res) => {
 app.get('/posts', authenticationMiddleWare, async (req, res) => {
     try {
         const userId = req.userId;
-        const posts = await PostModel.find({ user: userId });
+        const posts = await PostModel.find({ user: userId }).populate('user');
         res.status(200).json({ posts })
     } catch (error) {
         res.status(500).json({ message: "Something wrong happened" })
